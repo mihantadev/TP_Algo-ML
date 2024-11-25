@@ -1,15 +1,14 @@
 import pygame
 import random
-import heapq
 import time
 
 # Dimensions du puzzle
 DIMENSIONS = {3: (3, 3), 4: (4, 4)}
 
-
 class Puzzle:
-    def __init__(self, n):
+    def __init__(self, n, k):
         self.n = n  # Taille du puzzle (3 pour 8-puzzle, 4 pour 15-puzzle)
+        self.k = k  # Nombre de déplacements avant swap
         self.size = DIMENSIONS[n]  # Dimensions du puzzle
         self.board = self.generate_board()  # Initialiser le plateau
         self.empty_pos = self.board.index(0)  # Position de la case vide
@@ -62,72 +61,21 @@ class Puzzle:
                 num = self.board[i * self.n + j]
                 x, y = j * block_size, i * block_size
                 if num != 0:
-                    pygame.draw.rect(screen, (20, 205, 80), (x, y, block_size, block_size))
+                    pygame.draw.rect(screen, (20, 205, 80), (x, y, block_size, block_size), border_radius=10)
                     font = pygame.font.Font(None, 50)
                     text = font.render(str(num), True, (0, 0, 0))
                     screen.blit(text, (x + block_size // 3, y + block_size // 3))
-                pygame.draw.rect(screen, (0, 0, 0), (x, y, block_size, block_size), 2)
+                pygame.draw.rect(screen, (0, 0, 0), (x, y, block_size, block_size), 3, border_radius=10)
 
-
-class PuzzleSolver:
-    def __init__(self, puzzle):
-        self.puzzle = puzzle
-        self.goal_state = self.get_goal_state()
-        self.start_state = tuple(self.puzzle.board)
-
-    def get_goal_state(self):
-        """Retourner l'état cible du puzzle."""
-        return tuple(range(self.puzzle.n * self.puzzle.n))
-
-    def get_heuristic(self, state):
-        """Calculer la distance de Manhattan."""
-        distance = 0
-        for i, val in enumerate(state):
-            if val != 0:
-                target_pos = self.goal_state.index(val)
-                target_row, target_col = divmod(target_pos, self.puzzle.n)
-                current_row, current_col = divmod(i, self.puzzle.n)
-                distance += abs(target_row - current_row) + abs(target_col - current_col)
-        return distance
-
-    def get_neighbors(self, state):
-        """Retourner les voisins (états voisins)."""
-        neighbors = []
-        empty_pos = state.index(0)
-        row, col = divmod(empty_pos, self.puzzle.n)
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-        for dr, dc in directions:
-            new_row, new_col = row + dr, col + dc
-            if 0 <= new_row < self.puzzle.n and 0 <= new_col < self.puzzle.n:
-                new_pos = new_row * self.puzzle.n + new_col
-                new_state = list(state)
-                new_state[empty_pos], new_state[new_pos] = new_state[new_pos], new_state[empty_pos]
-                neighbors.append(tuple(new_state))
-
-        return neighbors
+    def is_solved(self):
+        """Vérifier si le puzzle est résolu."""
+        return self.board == list(range(self.n * self.n))
 
     def solve(self):
-        """Résoudre le puzzle avec l'algorithme A*."""
-        open_list = []
-        heapq.heappush(open_list, (self.get_heuristic(self.start_state), 0, self.start_state, []))
-        closed_list = set()
-
-        while open_list:
-            _, cost, current_state, path = heapq.heappop(open_list)
-
-            if current_state == self.goal_state:
-                return path  # Retourner le chemin
-
-            closed_list.add(current_state)
-
-            for neighbor in self.get_neighbors(current_state):
-                if neighbor not in closed_list:
-                    new_cost = cost + 1
-                    new_heuristic = new_cost + self.get_heuristic(neighbor)
-                    heapq.heappush(open_list, (new_heuristic, new_cost, neighbor, path + [neighbor]))
-
-        return None  # Aucun chemin trouvé
+        """Résoudre automatiquement le puzzle en remettant les cases dans l'ordre."""
+        self.board = list(range(self.n * self.n))  # Réinitialiser le tableau à la solution
+        self.empty_pos = self.board.index(0)
+        time.sleep(0.8)
 
 
 def select_puzzle_size():
@@ -146,8 +94,8 @@ def select_puzzle_size():
         screen.fill((255, 255, 255))
         screen.blit(large_text, (100, 50))
 
-        pygame.draw.rect(screen, (20, 205, 80), button_3x3)
-        pygame.draw.rect(screen, (20, 205, 80), button_4x4)
+        pygame.draw.rect(screen, (20, 205, 80), button_3x3, border_radius=10)
+        pygame.draw.rect(screen, (20, 205, 80), button_4x4, border_radius=10)
 
         text_3x3 = font.render("3x3", True, (255, 255, 255))
         text_4x4 = font.render("4x4", True, (255, 255, 255))
@@ -169,65 +117,112 @@ def select_puzzle_size():
     pygame.quit()
 
 
-def main():
-    # Sélection de la taille du puzzle
-    n = select_puzzle_size()
-    if not n:
-        return
-
-    puzzle = Puzzle(n)
-
+def select_k_value():
     pygame.init()
-    screen_size = 800
-    screen = pygame.display.set_mode((screen_size, screen_size))
-    pygame.display.set_caption("Puzzle à glissements")
+    screen = pygame.display.set_mode((420, 250))
+    pygame.display.set_caption("Choisir le nombre de déplacements k")
 
-    # Bouton de résolution
-    solve_button = pygame.Rect(550, 450, 120, 40)
+    font = pygame.font.Font(None, 25)
+    text = font.render("Entrez nombre déplacements k:", True, (0, 0, 0))
+    input_box = pygame.Rect(100, 100, 200, 50)
 
+    k_value = ""
     running = True
-    solving = False
-    solution = []
-
     while running:
-        screen.fill((255, 255, 255))  # Fond blanc
-        puzzle.draw(screen)
+        screen.fill((255, 255, 255))
+        screen.blit(text, (50, 50))
 
-        pygame.draw.rect(screen, (20, 205 , 80), solve_button)
-        font = pygame.font.Font(None, 30)
-        solve_text = font.render("Résoudre", True, (0, 0, 0))
-        screen.blit(solve_text, (solve_button.x + 30, solve_button.y + 5))
+        pygame.draw.rect(screen, (0, 0, 0), input_box, 2)
+        font_input = pygame.font.Font(None, 40)
+        txt_surface = font_input.render(k_value, True, (0, 0, 0))
+        screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN and not solving:
-                if event.key == pygame.K_UP:
-                    puzzle.move('up')
-                elif event.key == pygame.K_DOWN:
-                    puzzle.move('down')
-                elif event.key == pygame.K_LEFT:
-                    puzzle.move('left')
-                elif event.key == pygame.K_RIGHT:
-                    puzzle.move('right')
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if solve_button.collidepoint(event.pos) and n == 3:
-                    solving = True
-                    solver = PuzzleSolver(puzzle)
-                    solution = solver.solve()
-
-        # Résolution automatique
-        if solving and solution:
-            time.sleep(0.8)
-            next_move = solution.pop(0)
-            puzzle.board = list(next_move)
-            puzzle.empty_pos = puzzle.board.index(0)
-            if not solution:
-                solving = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    if k_value.isdigit():
+                        return int(k_value)
+                    else:
+                        k_value = ""  # Efface l'entrée si elle est invalide
+                elif event.key == pygame.K_BACKSPACE:
+                    k_value = k_value[:-1]
+                else:
+                    k_value += event.unicode
 
         pygame.display.flip()
 
     pygame.quit()
+    return 3  # Valeur par défaut si l'utilisateur ferme la fenêtre
+
+
+def main():
+    while True:  # Boucle principale pour revenir à la sélection de la taille
+        # Sélection de la taille du puzzle
+        n = select_puzzle_size()
+        if not n:
+            return
+
+        # Sélection du nombre k de déplacements avant swap
+        k = select_k_value()
+
+        puzzle = Puzzle(n, k)
+
+        pygame.init()
+        screen_size = 650
+        screen = pygame.display.set_mode((screen_size, screen_size))
+        pygame.display.set_caption("Puzzle à glissements")
+
+        # Définition des boutons
+        button_back = pygame.Rect(500, 390, 100, 50)
+        button_solve = pygame.Rect(500, 450, 150, 50)
+        font = pygame.font.Font(None, 40)
+
+        running = True
+        while running:
+            screen.fill((255, 255, 255))  # Fond blanc
+            puzzle.draw(screen)
+
+            # Dessiner les boutons
+            pygame.draw.rect(screen, (20, 205, 80), button_back, border_radius=10)
+            pygame.draw.rect(screen, (20, 205, 80), button_solve, border_radius=10)
+            text_back = font.render("Retour", True, (255, 255, 255))
+            text_solve = font.render("Résoudre", True, (255, 255, 255))
+
+            screen.blit(text_back, (button_back.x + 10, button_back.y + 10))
+            screen.blit(text_solve, (button_solve.x + 10, button_solve.y + 10))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if button_back.collidepoint(event.pos):
+                        running = False  # Fermer cette boucle et revenir à la sélection de la taille
+                        break  # Quitter la boucle intérieure pour revenir à l'écran principal
+                    if button_solve.collidepoint(event.pos):
+                        puzzle.solve()  # Résoudre automatiquement le puzzle
+
+                # Ajouter les contrôles de clavier pour déplacer la case vide
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:  # Touche fléchée haut
+                        puzzle.move('up')
+                    elif event.key == pygame.K_DOWN:  # Touche fléchée bas
+                        puzzle.move('down')
+                    elif event.key == pygame.K_LEFT:  # Touche fléchée gauche
+                        puzzle.move('left')
+                    elif event.key == pygame.K_RIGHT:  # Touche fléchée droite
+                        puzzle.move('right')
+                        
+            pygame.display.flip()
+
+        # Si l'utilisateur quitte ou clique sur "Retour", revenir à la page de sélection
+        if not running:
+            continue  # Recommencer la boucle et retourner à la sélection de la taille du puzzle
+
+    pygame.quit()
+
 
 
 if __name__ == "__main__":
