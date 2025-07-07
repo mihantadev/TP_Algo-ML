@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tic-Tac-Toe Madagascar</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <img src="{{ url_for('static', filename='logo.jfif') }}" alt="Logo" class="logo">
+            Tic-Tac-Toe <span class="ispm">ISPM</span>
+        </h1>
+        <div class="score">
+            <span>Vous (X): <span id="score-x">{{ score['X'] }}</span></span>
+            <span>IA (O): <span id="score-o">{{ score['O'] }}</span></span>
+            <span>Nuls: <span id="score-draw">{{ score['draw'] }}</span></span>
+        </div>
+        <div id="status" class="status">À vous de jouer !</div>
+        <div class="board" id="board">
+            {% for i in range(9) %}
+            <button class="cell" data-idx="{{ i }}"></button>
+            {% endfor %}
+        </div>
+        <div class="controls">
+            <button id="reset" class="reset">Reset</button>
+        </div>
+    </div>
+    <script src="/static/game.js"></script>
+</body>
+</html> 

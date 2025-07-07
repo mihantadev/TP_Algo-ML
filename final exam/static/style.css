@@ -1,0 +1,167 @@
+body {
+    background: radial-gradient(circle at 60% 10%, #f3d0ec 0%, #8f2ba5 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+.container {
+    max-width: 420px;
+    margin: 40px auto;
+    background: rgba(20, 0, 30, 0.95);
+    border-radius: 24px;
+    box-shadow: 0 0 40px 10px #ff00cc44, 0 0 0 4px #2d0036;
+    padding: 32px 24px 24px 24px;
+    text-align: center;
+    animation: fadeInUp 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+h1 {
+    color: #ff00cc;
+    font-size: 2.2em;
+    margin-bottom: 10px;
+    font-family: 'Arial Black', Arial, sans-serif;
+    text-shadow: 0 0 8px #ff00cc, 0 0 16px #ff00cc99;
+    letter-spacing: 2px;
+    animation: fadeInTitle 1.2s 0.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes fadeInTitle {
+    0% {
+        opacity: 0;
+        letter-spacing: 0.5em;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        letter-spacing: 2px;
+        transform: scale(1);
+    }
+}
+.ispm {
+    color: #552179;
+    font-weight: bold;
+    text-shadow: 0 0 8px #ffffff, 0 0 16px #ffffff99;
+}
+.logo {
+    height: 48px;
+    vertical-align: middle;
+    margin-right: 10px;
+    filter: drop-shadow(0 0 8px #ff00cc) drop-shadow(0 0 16px #ffe600);
+    animation: pulseGlow 2.2s infinite alternate;
+}
+@keyframes pulseGlow {
+    0% {
+        filter: drop-shadow(0 0 8px #ff00cc) drop-shadow(0 0 16px #ffe600);
+    }
+    100% {
+        filter: drop-shadow(0 0 24px #ff00cc) drop-shadow(0 0 32px #ffe600);
+    }
+}
+.score {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    font-size: 1.1em;
+    color: #ffe600;
+    font-weight: bold;
+    text-shadow: 0 0 6px #ffe60099;
+}
+.status {
+    margin-bottom: 18px;
+    font-size: 1.2em;
+    color: #ff00cc;
+    font-weight: bold;
+    min-height: 28px;
+    text-shadow: 0 0 8px #ff00cc99;
+}
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 80px);
+    grid-template-rows: repeat(3, 80px);
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+.cell {
+    width: 80px;
+    height: 80px;
+    font-size: 2.5em;
+    font-family: 'Arial Black', Arial, sans-serif;
+    border-radius: 18px;
+    border: 3px solid #ff00cc;
+    background: #1a0022;
+    color: #ff00cc;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+    outline: none;
+    box-shadow: 0 0 12px #ff00cc99, 0 0 24px #ffe60044;
+    position: relative;
+    z-index: 1;
+}
+.cell.x {
+    color: #ffe600;
+    border: 3px solid #ffe600;
+    background: #2d0036;
+    text-shadow: 0 0 8px #ffe600, 0 0 16px #ffe60099;
+}
+.cell.o {
+    color: #ff00cc;
+    border: 3px solid #ff00cc;
+    background: #1a0022;
+    text-shadow: 0 0 8px #ff00cc, 0 0 16px #ff00cc99;
+}
+.cell:disabled {
+    background: #2d0036;
+    color: #bbb;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.cell:not(:disabled):hover {
+    box-shadow: 0 0 24px 8px #ffe600cc, 0 0 40px 12px #ff00cc88;
+    background: #2d0036;
+    transition: box-shadow 0.3s, background 0.3s;
+}
+.reset {
+    background: linear-gradient(90deg, #ff00cc 0%, #ffe600 100%);
+    color: #2d0036;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 32px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 12px #ff00cc99, 0 0 24px #ffe60044;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.reset:hover {
+    background: linear-gradient(90deg, #ffe600 0%, #ff00cc 100%);
+    color: #1a0022;
+    box-shadow: 0 0 24px #ffe60099, 0 0 32px #ff00cc44;
+}
+@media (max-width: 500px) {
+    .container {
+        padding: 10px 2px 18px 2px;
+    }
+    .board {
+        grid-template-columns: repeat(3, 50px);
+        grid-template-rows: repeat(3, 50px);
+        gap: 6px;
+    }
+    .cell {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3em;
+    }
+    .logo {
+        height: 32px;
+    }
+} 
